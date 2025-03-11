@@ -7,10 +7,10 @@ Implementation of YOLOv2-tiny with NNawaq[1]
 Objectives
 ---
 
-This project consist to implement a version of the neural network `YOLOv2-tiny` from darknet[2].
-It need to be cloned in an existing nnawaq clone.
+This project consists to implement a version of the neural network `YOLOv2-tiny` from darknet[2].
+It needs to be cloned in an existing nnawaq clone.
 
-The work is split in 3 folder:
+The work is split in 3 folders:
 - `datasets/YOLO` where we can found all YOLO's weights processing
 - `hdl/nn` for the hardware implementation of the component `nnlayer_leaky.vhd`
 - `tools` for the support of the new composant LeakyRelu by nnawaq and the addition of new layers in software simulation using the “channel-major” order.
@@ -19,9 +19,9 @@ datasets/YOLO
 ---
 With this folder, we can quantize the weights of `YOLOv2-tiny` (COCO dataset).
 In `utils`:
-- `create_yolo_params.py` extract from `YOLOv2-tiny.weights` YOLO's weights and parameters (BatchNorm, Bias...) (in float32).
-- `convert_yolo_params.cpp` quantize the weights (float32 -> int8) and the parameters.
-- `convert_params_csv.cpp` convert the quantized weights in csv format (nnawaq format)
+- `create_yolo_params.py` extracts from `YOLOv2-tiny.weights` YOLO's weights and parameters (BatchNorm, Bias...) (in float32).
+- `convert_yolo_params.cpp` quantizes the weights (float32 -> int8) and the parameters.
+- `convert_params_csv.cpp` converts the quantized weights in csv format (nnawaq format)
 
 ### Pipeline
 
@@ -45,7 +45,7 @@ In `nnawaq-tcl`, `build_yolo.tcl` and `config_yolo.tcl` are used to build and co
 
 Areas for improvement
 ---
-- The quantization of the weights and parameters of YOLO should be correct. However, it can be improved: Exclude extreme values when calculating the channel quantization scale.
+- The quantization of the weights and parameters of YOLO should be correct. However, it can be improved: Exclude extreme values when calculating the channel quantization scale for better quantization
 
 - The last convolutional layer of YOLO doesn't have a BatchNorm layer associated to it, only bias. The calcul of the parameters of `norm8.csv` probably needs to be corrected to ensure a good dequantization.
 
