@@ -1,0 +1,8 @@
+
+nnawaq
+*.o
+out*
+*.txt
+out-header.h
+*.dat
+

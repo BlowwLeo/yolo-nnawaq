@@ -1,0 +1,11 @@
+
+# Neuron configs are generated
+test*_config_neu*.csv
+
+# File copied from test1
+test2_frames.csv
+
+# output files
+*output.csv
+*output_neu?.csv
+
