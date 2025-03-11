@@ -63,11 +63,6 @@ std::tuple<std::string, std::vector<float>, std::vector<size_t>> extract_variabl
         array_data.push_back(std::stof(match.str()));
     }
 
-
-
-    
-
-
     return { var_name, array_data, dimensions };
 }
 
@@ -159,26 +154,6 @@ std::vector<int> float_to_poweroftwo(const std::vector<float> &array_data, std::
     return q_biases;
 }
 
-/*
-std::vector<std::pair<int32_t, int>> calc_mult_shift(const std::vector<float>& scale_weights, const std::vector<float>& scales_norm) {
-    std::vector<std::pair<int32_t, int>> mult_shift;
-    for (size_t i = 0; i < scale_weights.size(); ++i) {
-        float scale = scale_weights[i] * scales_norm[i];
-        int8_t shift = 0;
-
-        while (scale < 1.0f && shift < 31) {
-            scale *= 2.0f;
-            shift++;
-        }
-        int32_t quantized_scale = static_cast<int32_t>(scale * (1 << 30));
-        mult_shift.push_back({quantized_scale, shift});
-    }
-
-
-    return mult_shift;
-}
-*/
-
 std::vector<std::pair<int32_t, int>> calc_mult_shift(const std::vector<float>& scale_weights, const std::vector<float>& scales_norm) {
     std::vector<std::pair<int32_t, int>> mult_shift;
     for (size_t i = 0; i < scale_weights.size(); ++i) {
@@ -194,7 +169,6 @@ std::vector<std::pair<int32_t, int>> calc_mult_shift(const std::vector<float>& s
         int32_t quantized_scale = static_cast<int32_t>(scale);
         mult_shift.push_back({quantized_scale, shift});
     }
-
 
     return mult_shift;
 }
@@ -212,7 +186,6 @@ std::vector<std::pair<int32_t, int>> calc_mult_shift_scale(const std::vector<flo
         mult_shift.push_back({quantized_scale, shift});
     }
 
-
     return mult_shift;
 }
 
@@ -226,7 +199,6 @@ void write_data_recursive(std::ofstream &outfile, const std::vector<int> &data, 
                 outfile << ", ";
             }
         }
-        
     } else {
         for (size_t i = 0; i < dimensions[dim_index]; ++i) {
             outfile << "\n";
@@ -234,12 +206,8 @@ void write_data_recursive(std::ofstream &outfile, const std::vector<int> &data, 
             
             if (i != dimensions[dim_index] - 1) {
                 outfile << ", ";
-                
-                
             }
-            
         }
-        
     }
     outfile << "}";
     
@@ -258,24 +226,6 @@ void write_h_file(  const std::string &output_folder, const std::string &filenam
         return;
     }
 
-    int rescale_shift_output = 0; //shift à ajouter pour récupérer des valeurs entre -127 et 127 à la sortie de la couche norm.
-    /*                           // Amélioration: Inférence pour chaque couche pour trouver le shift optimal
-    if (layer_number == 0){
-        rescale_shift_output = 0; //4
-    }else if (layer_number == 1){
-        rescale_shift_output = -2;
-    }else if (layer_number == 2){
-        rescale_shift_output = -3;
-    }else if (layer_number == 3){
-        rescale_shift_output = -2;
-    }else if (layer_number == 4){
-        rescale_shift_output = -2;
-    }else if (layer_number == 5){
-        rescale_shift_output = -1;
-    }else if (layer_number == 7){
-        rescale_shift_output = 12;//13
-    }
-    */
     std::string quantized_var_name = var_name + "_q";
     std::string quantized_var_name_b = var_name_b + "_q";
     outfile << "/***************************************/\n";
@@ -323,14 +273,10 @@ void write_h_file(  const std::string &output_folder, const std::string &filenam
     }
 
     outfile << "};\n\n";
-/*
-    outfile << "float " << quantized_var_name_b << "_scales["<<1<<"] = {";
-    outfile << scales_b;
-    outfile << "};\n\n";
-*/
+
     outfile << "int32_8_t mult_shift["<<dimensions[0]<<"] = {";
     for (size_t i = 0; i < multshift.size(); ++i) {
-        outfile << "{" << multshift[i].first << ", " << multshift[i].second + rescale_shift_output << "}";
+        outfile << "{" << multshift[i].first << ", " << multshift[i].second << "}";
         if (i != multshift.size() - 1) {
             outfile << ", ";
         }
@@ -396,7 +342,6 @@ int main(int argc, char *argv[]) {
                         sign = get_sign(array_data_n, 0, dimensions[0]);
                     }
                     //std::cout<<" Dim et sign.size() "<<dimensions[0]<<" "<<sign.size()<<std::endl;
-
                     if (!var_name.empty() && !array_data.empty() && !var_name_b.empty() && !array_data_b.empty()) {
 
                         size_t num_channels = dimensions[0]; // Assuming the first dimension is the number of channels
@@ -412,8 +357,6 @@ int main(int argc, char *argv[]) {
                             quantized_data = quantized_data_;
                             scales = scales_;
                         }
-                        
-                            //auto [quantized_data_b, scales_b] = quantize_biases(array_data_b);
                         auto quantized_data_b = quantize_biases(array_data_b, scales);
                         
                         if (array_data_n.size() == 0){
@@ -425,7 +368,6 @@ int main(int argc, char *argv[]) {
                         }
                         
                         write_h_file(output_folder, "q_" + filename, var_name, var_name_b, quantized_data, quantized_data_b, scales, dimensions, mult_shift, layer_number);
-                        
                     }
                 } else {
                     std::cout << "No block found for keyword '"

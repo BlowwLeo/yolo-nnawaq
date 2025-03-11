@@ -29,7 +29,6 @@ void write_csv(const std::string& filename, const std::vector<std::vector<int>>&
         }
         file << "\n";
     }
-
     file.close();
 }
 
@@ -44,7 +43,6 @@ void write_norm_csv(const std::string& filename, const std::vector<std::vector<i
         file << biases[i+1] <<","<< mult_shift[i-2][0] <<","<< mult_shift[i-2][1]<<"\n";
     }
     file << "\n";
-    
 
     file.close();
 }
@@ -102,12 +100,11 @@ Parameters read_parameters(const std::string& filename) {
             values.push_back(std::stoi(match.str()));
         }
 
-        // Organiser les valeurs en une liste de listes avec une dimension globale de 16
         std::vector<std::vector<int>> organized_weights;
         size_t index = 8;
         for (size_t i = 0; i < values[4]; ++i) {
             std::vector<int> sublist;
-            for (size_t j = 0; j < values[5]*values[6]*values[7]; ++j) { // 3x3x3 = 27
+            for (size_t j = 0; j < values[5]*values[6]*values[7]; ++j) {
                 sublist.push_back(values[index++]);
             }
             organized_weights.push_back(sublist);
@@ -148,7 +145,6 @@ Parameters read_parameters(const std::string& filename) {
 }
 
 int main(int argc, char *argv[]) {
-
     
     std::string input_dir = "int_params";
     std::string csv_dir = "csv_params";
@@ -159,11 +155,8 @@ int main(int argc, char *argv[]) {
         csv_dir = argv[2];
     }
 
-
     // Créer le répertoire csv_params s'il n'existe pas
     std::filesystem::create_directory(csv_dir);
-
-    // Répertoire d'entrée contenant les fichiers q_layerX.h
 
     // Liste des fichiers dans le répertoire d'entrée
     std::vector<std::string> layer_files;
@@ -208,7 +201,6 @@ int main(int argc, char *argv[]) {
             }
             #endif
 
-            
             write_norm_csv(csv_dir+"/norm" + layer + ".csv", params.mult_shift, params.biases);
         }
         if (!params.weights.empty()) {

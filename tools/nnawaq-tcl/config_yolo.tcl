@@ -1,8 +1,5 @@
 #!./nnawaq -tcl
 
-# This TCL script is intended to be executed by the tool nnawaq
-# Configuration script for YOLO network, using CSV weights & biases.
-
 global env
 
 set cfg_dir ../../datasets/YOLO/csv_params

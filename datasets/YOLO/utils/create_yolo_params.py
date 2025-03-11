@@ -30,7 +30,6 @@ def read_weights(weights_path, conv_layers):
     """Lit les paramètres binaires et les organise par couche."""
     params = []
     with open(weights_path, 'rb') as f:
-        # Sauter l'en-tête (5 int32: major, minor, revision, seen, et un éventuel paramètre supplémentaire)
         _ = np.fromfile(f, dtype=np.int32, count=5)
         
         in_channels = 3  # Entrée initiale (RGB)

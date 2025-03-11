@@ -1,11 +1,5 @@
 #!./nnawaq -tcl
 
-# This TCL script was generated automatically for YOLO, ignoring [region].
-# We use 'create_nn_conv_neu' for convolutional layers.
-
-puts "####################"
-
-
 global env
 
 set par 1

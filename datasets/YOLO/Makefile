@@ -9,13 +9,16 @@ CONVERT_BIN = $(BIN_DIR)/convert_yolo_params
 CSV_BIN     = $(BIN_DIR)/convert_params_csv
 
 
-.PHONY: all clone yolo config create convert csv params run_convert run_csv
+.PHONY: all clone yolo config create convert csv params run_quantif run_csv
 
 TARGET ?= all
 
 
 # Cible par défaut : réaliser tout le pipeline
 all: compile
+	@if [ "$(TARGET)" = "all" ]; then \
+		$(MAKE) params; \
+	fi
 
 clone: yolo
 	@echo "Aucune opération de clone nécessaire pour yolo."
@@ -23,24 +26,29 @@ clone: yolo
 yolo:
 	@echo "Cible yolo (dépendance commune)."
 
+
+# Téléchargement des fichiers de configuration
 config: yolo
 	@echo "Téléchargement des fichiers de configuration..."
 	wget -P $(MODEL_DIR) https://pjreddie.com/media/files/yolov2-tiny.weights
 	wget -P $(MODEL_DIR) https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/yolov2-tiny.cfg
 
+# Création des paramètres
 create: yolo
 	@echo "Création des paramètres float..."
 	python3 $(UTILS_DIR)/create_yolo_params.py --cfg $(MODEL_DIR)/yolov2-tiny.cfg --weights $(MODEL_DIR)/yolov2-tiny.weights --output_folder $(PARAMS_DIR)/float_params
 
 # Pour lancer les exécutables indépendamment sans recompilation :
-run_convert: $(CONVERT_BIN)
+run_quantif: $(CONVERT_BIN)
 	$(CONVERT_BIN) $(PARAMS_DIR)/float_params $(PARAMS_DIR)/int_params
 
 run_csv: $(CSV_BIN)
 	$(CSV_BIN) $(PARAMS_DIR)/int_params $(PARAMS_DIR)/csv_params
 
-params: create run_convert run_csv
+params: config create run_quantif run_csv
 	@echo "Paramètres convertis et enregistrés dans $(PARAMS_DIR)/int_params et $(PARAMS_DIR)/csv_params."
+
+
 
 # Compilation de convert_yolo_params.cpp uniquement si nécessaire
 $(CONVERT_BIN): $(UTILS_DIR)/convert_yolo_params.cpp
@@ -53,6 +61,8 @@ $(CSV_BIN): $(UTILS_DIR)/convert_params_csv.cpp
 	@echo "Compilation de convert_params_csv..."
 	g++ -o $(CSV_BIN) $(UTILS_DIR)/convert_params_csv.cpp
 
+
+
 # Nouvelle cible pour compiler tout ou partie des exécutables sans lancer leur exécution
 compile:
 	@if [ "$(TARGET)" = "convert" ] || [ "$(TARGET)" = "all" ]; then \
@@ -64,10 +74,6 @@ compile:
 		$(MAKE) $(CSV_BIN); \
 	fi
 	@echo "Compilation terminée pour TARGET=$(TARGET)."
-
-
-
-
 
 # Cible pour nettoyer les exécutables compilés
 clean:
